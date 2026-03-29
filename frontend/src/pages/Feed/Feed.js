@@ -114,7 +114,7 @@ class Feed extends Component {
     this.setState({
       editLoading: true
     });
-    // Set up data (with image!)
+    
     const formData = new FormData();
     formData.append('title', postData.title);
     formData.append('content', postData.content);
