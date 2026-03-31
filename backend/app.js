@@ -6,9 +6,9 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const multer = require('multer');
-
-const feedRoutes = require('./routes/feed');
-const authRoutes = require('./routes/auth');
+const { graphqlHTTP } = require('express-graphql');
+const graphqlSchema = require('./graphql/schema');
+const graphqlResolver = require('./graphql/resolvers');
 
 const app = express();
 
@@ -29,7 +29,6 @@ const filterFilter = (req, file, cb) => {
     }
 }
 
-// app.use(bodyParser.urlencoded()); // x-www-form-urlencoded <form>
 app.use(bodyParser.json()); // application/json
 app.use(multer({ storage: fileStorage, fileFilter: filterFilter }).single('image'));
 app.use('/images', express.static(path.join(__dirname, 'images')));
@@ -41,8 +40,11 @@ app.use((req, res, next) => {
     next();
 });
 
-app.use('/feed', feedRoutes);
-app.use('/auth', authRoutes);
+app.use('/graphql', graphqlHTTP ({
+    schema: graphqlSchema,
+    rootValue: graphqlResolver,
+    graphiql: true
+}))
 
 app.use((error, req, res, next) => {
     console.log(error);
@@ -54,12 +56,7 @@ app.use((error, req, res, next) => {
 
 mongoose.connect(process.env.MONGODB_URI)
     .then(() => {
-        const server = app.listen(8080, () => console.log('Server running on port 8080'));
-
-        const io = require('./socket').init(server);
-        io.on('connection', socket => {
-            console.log('Client connected');
-        });
+        app.listen(8080, () => console.log('Server running on port 8080'));
     })
     .catch(err => console.log(err));
 
