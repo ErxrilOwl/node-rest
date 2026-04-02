@@ -51,7 +51,7 @@ module.exports = {
             throw error;
         }
 
-        const isEqual = await bycrypt.compare(password, user.password);
+        const isEqual = await bcrypt.compare(password, user.password);
 
         if (!isEqual) {
             const error = new Error('Password is incorrect!');
