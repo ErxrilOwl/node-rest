@@ -2,7 +2,9 @@ import React from 'react';
 
 import './Image.css';
 
-const image = props => (
+const image = props => {
+  console.log(props.imageUrl)
+  return (
   <div
     className="image"
     style={{
@@ -11,6 +13,7 @@ const image = props => (
       backgroundPosition: props.left ? 'left' : 'center'
     }}
   />
-);
+  )
+}
 
 export default image;
