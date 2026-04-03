@@ -235,13 +235,19 @@ class Feed extends Component {
           throw new Error('Creating a post failed!');
         }
 
+        let resDataField = 'createPost';
+
+        if (this.state.editPost) {
+          resDataField = 'updatePost';
+        }
+
         const post = {
-          _id: resData.data.createPost._id,
-          title: resData.data.createPost.title,
-          content: resData.data.createPost.content,
-          creator: resData.data.createPost.creator,
-          createdAt: resData.data.createPost.createdAt,
-          imagePath: resData.data.createPost.imageUrl
+          _id: resData.data[resDataField]._id,
+          title: resData.data[resDataField].title,
+          content: resData.data[resDataField].content,
+          creator: resData.data[resDataField].creator,
+          createdAt: resData.data[resDataField].createdAt,
+          imagePath: resData.data[resDataField].imageUrl
         };
 
         this.setState(prevState => {
@@ -280,19 +286,32 @@ class Feed extends Component {
 
   deletePostHandler = postId => {
     this.setState({ postsLoading: true });
-    fetch(`http://localhost:8080/feed/post/${postId}`, {
-      method: 'DELETE',
-      headers: {
-        'Authorization': 'Bearer ' + this.props.token 
-      }
-    })
-      .then(res => {
-        if (res.status !== 200 && res.status !== 201) {
-          throw new Error('Deleting a post failed!');
+
+    const graphqlQuery = {
+      query: `
+        mutation DeletePost($id: ID!) {
+          deletePost(id: $id)
         }
-        return res.json();
-      })
+      `,
+      variables: {
+        id: postId
+      }
+    }
+
+    fetch('http://localhost:8080/graphql', {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer ' + this.props.token,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(graphqlQuery)
+    })
+      .then(res => res.json())
       .then(resData => {
+        if (resData.errors) {
+          throw new Error('Deleting the post failed!');
+        }
+
         // console.log(resData);
         // this.setState(prevState => {
         //   const updatedPosts = prevState.posts.filter(p => p._id !== postId);
