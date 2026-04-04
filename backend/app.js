@@ -12,6 +12,8 @@ const graphqlSchema = require('./graphql/schema');
 const graphqlResolver = require('./graphql/resolvers');
 const auth = require('./middleware/auth');
 const imageUtil = require('./utils/image');
+const helmet = require('helmet');
+// const compression = require('compression');
 
 const app = express();
 
@@ -64,6 +66,9 @@ app.put('/post-image', (req, res, next) => {
     }
     return res.status(201).json({ message: 'File stored.', filePath: req.file.path });
 });
+
+app.use(helmet());
+// app.use(compression());
 
 app.use('/graphql', graphqlHTTP ({
     schema: graphqlSchema,

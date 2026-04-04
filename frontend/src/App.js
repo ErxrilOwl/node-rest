@@ -63,7 +63,7 @@ class App extends Component {
     const graphqlQuery = {
       query: `
         mutation Login($email: String!, $password: String!) {
-          login(email: "${authData.email}", password: "${authData.password}") {
+          login(email: $email, password: $password) {
             token
             userId
           }

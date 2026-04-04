@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 
 const User = require('../models/user');
 const Post = require('../models/post');
-const { clearImage } = require('../util/file');
+const { clearImage } = require('../utils/image');
 
 module.exports = {
     createUser: async function({ userInput }, req) {
@@ -43,7 +43,7 @@ module.exports = {
             ...createdUser._doc, _id: createdUser._id.toString()
         }
     },
-    login: async function({ email, password }) {
+    login: async function({ email, password }, req) {
         const user = await User.findOne({ email: email });
 
         if (!user) {
