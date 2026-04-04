@@ -14,6 +14,7 @@ const auth = require('./middleware/auth');
 const imageUtil = require('./utils/image');
 const helmet = require('helmet');
 // const compression = require('compression');
+const morgan = require('morgan');
 
 const app = express();
 
@@ -67,8 +68,14 @@ app.put('/post-image', (req, res, next) => {
     return res.status(201).json({ message: 'File stored.', filePath: req.file.path });
 });
 
+const accessLogStream = require('fs').createWriteStream(
+    path.join(__dirname, 'access.log'),
+    { flags: 'a' }
+);
+
 app.use(helmet());
 // app.use(compression());
+app.use(morgan('combined', { stream: accessLogStream }));
 
 app.use('/graphql', graphqlHTTP ({
     schema: graphqlSchema,
